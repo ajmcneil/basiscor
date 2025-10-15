@@ -11,7 +11,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 library(copula)
-library(basecor)
+library(basiscor)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -25,15 +25,15 @@ Seems to agree with copula package for these copulas.
 ```{r}
 cop <- fgmCopula(1)
 rho(cop)
-basecor(cop)
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 
 cop <- frankCopula(2)
 rho(cop)
-basecor(cop)
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 ```
 
 ### Gumbel, Clayton and Joe Copulas (with tail dependence)
@@ -43,23 +43,23 @@ For Spearman's rank there are discrepancies between our values and the ones in t
 ```{r}
 cop <- claytonCopula(1.5)
 rho(cop)
-basecor(cop)
-basecor(cop, method = "d")
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, method = "d")
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 
 cop <- gumbelCopula(1.5)
 rho(cop)
-basecor(cop)
-basecor(cop, method = "d")
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, method = "d")
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 
 cop <- joeCopula(1.5)
-basecor(cop)
-basecor(cop, method = "d")
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, method = "d")
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 
 
 ```
@@ -73,10 +73,10 @@ rho <- 0.7
 cop <- normalCopula(rho)
 (6/pi)*asin(rho/2)
 rho(cop)
-basecor(cop)
-basecor(cop, method = "d")
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, method = "d")
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 ```
 
 ### t Copula
@@ -87,8 +87,8 @@ Spearman's rho is not evaluated for the t copula in the copula package. Moreover
 rho <- 0.7
 nu <- 4
 cop <- tCopula(rho, df = nu)
-basecor(cop)
-basecor(cop, method = "d")
-basecor(cop, 1, 2)
-basecor(cop, 2, 2)
+basiscor(cop)
+basiscor(cop, method = "d")
+basiscor(cop, 1, 2)
+basiscor(cop, 2, 2)
 ```

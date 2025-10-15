@@ -1,1 +1,1 @@
-# polyrankcor
+# basiscor

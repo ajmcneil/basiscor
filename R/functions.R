@@ -46,7 +46,7 @@ sLegendreD <- function(x, degree = 1){
   2 * stats::predict(polyD, 2*x - 1)
 }
 
-#' Compute Base Correlation
+#' Compute Basis Correlation
 #'
 #' @param object an object of class copula or Copula, or a data matrix, or a bivariate function describing a copula.
 #' @param j non-negative integer giving order of first polynomial.
@@ -57,26 +57,26 @@ sLegendreD <- function(x, degree = 1){
 #' @export
 #'
 #' @examples
-#' basecor(copula::claytonCopula(2), 2, 2)
-basecor <- function(object, j = 1L, k = 1L, ...){
+#' basiscor(copula::claytonCopula(2), 2, 2)
+basiscor <- function(object, j = 1L, k = 1L, ...){
   if (methods::is(object, "matrix"))
-    basecordata(object, j, k, ...)
+    basiscordata(object, j, k, ...)
   else if ((methods::is(object, "copula")) | (methods::is(object, "Copula")))
-    basecorcopula(object, j, k, copobj = TRUE, ...)
+    basiscorcopula(object, j, k, copobj = TRUE, ...)
   else if (methods::is(object, "function"))
-    basecorcopula(object, j, k, copobj = FALSE, ...)
+    basiscorcopula(object, j, k, copobj = FALSE, ...)
   else
     stop("Unknown object type")
 }
 
-#' Compute Base Correlation for Copula Object or Function
+#' Compute Basis Correlation for Copula Object or Function
 #'
 #' @param copula an object of class parCopula or a function.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
 #' @param copobj logical parameter for copula object.
 #' @param method method of calculation which can be "p" or "d".
-#' @param type type of base correlation can be legendre or cosine.
+#' @param type type of basis correlation can be legendre or cosine.
 #' @param ... other arguments to function.
 #'
 #' @return value of polynomial rank correlation.
@@ -84,8 +84,8 @@ basecor <- function(object, j = 1L, k = 1L, ...){
 #' @import copula
 #'
 #' @examples
-#' basecorcopula(copula::claytonCopula(2), 2, 2, copobj = TRUE)
-basecorcopula <- function(copula, j = 1L, k = 1L, copobj, method = "p", 
+#' basiscorcopula(copula::claytonCopula(2), 2, 2, copobj = TRUE)
+basiscorcopula <- function(copula, j = 1L, k = 1L, copobj, method = "p", 
                           type = "legendre", ...){
   j <- as.integer(j)
   k <- as.integer(k)
@@ -102,7 +102,7 @@ basecorcopula <- function(copula, j = 1L, k = 1L, copobj, method = "p",
     if (copula@parameters[2]%%1 != 0) #pCopula not implemented for non-integer df
       method <- "d"
   }
-  result <- stats::integrate(basecor_outer, lower = 0, upper = 1, j = j, k = k, copobj = copobj,
+  result <- stats::integrate(basiscor_outer, lower = 0, upper = 1, j = j, k = k, copobj = copobj,
                       copula = copula, method = method, type = type, ...)$value
   if (type == "legendre")
     output <- switch(method,
@@ -115,7 +115,7 @@ basecorcopula <- function(copula, j = 1L, k = 1L, copobj, method = "p",
   output
 }
 
-#' Outer integrand for base correlation
+#' Outer integrand for basis correlation
 #'
 #' @param v vector argument of function.
 #' @param j non-negative integer giving order of first polynomial.
@@ -123,16 +123,16 @@ basecorcopula <- function(copula, j = 1L, k = 1L, copobj, method = "p",
 #' @param copobj logical parameter for copula object.
 #' @param copula an object of class parCopula or a function.
 #' @param method method of calculation which can be "p" or "d".
-#' @param type type of base correlation can be legendre or cosine.
+#' @param type type of basis correlation can be legendre or cosine.
 #'
 #' @return value of outer integrand
 #' @keywords internal
 #'
-basecor_outer <- function(v, j, k, copobj, copula, method, type, ...){
+basiscor_outer <- function(v, j, k, copobj, copula, method, type, ...){
   out <- rep(NA, length(v))
   for (i in 1:length(v))
   {
-    tmp <- stats::integrate(basecor_inner, lower = 0, upper = 1, 
+    tmp <- stats::integrate(basiscor_inner, lower = 0, upper = 1, 
                      v = v[i], j = j, k = k, copobj = copobj, copula = copula, 
                      method = method, type = type, ...)
     out[i] <- tmp$value
@@ -140,7 +140,7 @@ basecor_outer <- function(v, j, k, copobj, copula, method, type, ...){
   out
 }
 
-#' Inner integrand for base correlation
+#' Inner integrand for basis correlation
 #'
 #' @param u vector argument of function.
 #' @param v vector argument of function.
@@ -149,11 +149,11 @@ basecor_outer <- function(v, j, k, copobj, copula, method, type, ...){
 #' @param copobj logical parameter for copula object.
 #' @param copula an object of class parCopula or a function.
 #' @param method method of calculation which can be "p" or "d".
-#' @param type type of base correlation can be legendre or cosine.
+#' @param type type of basis correlation can be legendre or cosine.
 #'
 #' @return value of inner integrand
 #' @keywords internal
-basecor_inner <- function(u, v, j, k, copobj, copula, method, type, ...){
+basiscor_inner <- function(u, v, j, k, copobj, copula, method, type, ...){
   if ((copobj) & (method == "p"))
     part1 <- pCopula(cbind(u, v), copula)
   else if ((copobj) & (method == "d"))
@@ -171,7 +171,7 @@ basecor_inner <- function(u, v, j, k, copobj, copula, method, type, ...){
   output
 }
 
-#' Compute Matrix of Base Correlations
+#' Compute Matrix of Basis Correlations
 #'
 #' @param object an object of class copula or Copula, or a data matrix, or a bivariate function describing a copula.
 #' @param maxorder maximum order of the polynomials.
@@ -182,15 +182,15 @@ basecor_inner <- function(u, v, j, k, copobj, copula, method, type, ...){
 #' @export
 #'
 #' @examples
-#' basecorM(copula::claytonCopula(2))
-basecorM <- function(object, maxorder = 4, symmetric = FALSE, ...){
+#' basiscorM(copula::claytonCopula(2))
+basiscorM <- function(object, maxorder = 4, symmetric = FALSE, ...){
   output <- matrix(NA, nrow = maxorder, ncol = maxorder)
   for (j in 1:maxorder){
     k1 <- 1
     if (symmetric) 
       k1 <- j
     for (k in k1:maxorder)
-      output[j,k] <- basecor(object, j, k, ...)
+      output[j,k] <- basiscor(object, j, k, ...)
   }
   if (symmetric)
     output[lower.tri(output)] <- t(output)[lower.tri(t(output))]
@@ -501,7 +501,7 @@ extremalLegendre <- function(j, k, case = "max"){
   sqrt(2*j + 1) * sqrt(2*k + 1) * stats::integrate(integrand, 0, 1, j = j, k = k)$value
 }
 
-#' Compute Sample Base Correlation
+#' Compute Sample Basis Correlation
 #'
 #' @param data a matrix of data wit two columns.
 #' @param j non-negative integer giving order of first polynomial.
@@ -512,7 +512,7 @@ extremalLegendre <- function(j, k, case = "max"){
 #' @return sample polynomial rank correlation value.
 #' @export
 #'
-basecordata <- function(data, j, k, type = "legendre", method = "T1"){
+basiscordata <- function(data, j, k, type = "legendre", method = "T1"){
   if (! methods::is(data, "matrix"))
     stop("Must supply data matrix")
   if (ncol(data) != 2)
