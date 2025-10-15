@@ -1,2 +1,1 @@
-# basiscor
-Orthonormal basis correlations
+# polyrankcor

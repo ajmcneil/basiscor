@@ -1,0 +1,94 @@
+---
+title: "Orthonormal Basis Correlations of Various Copulas"
+author: "McNeil, Neslehova, Smith"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Orthonormal Basis Correlations of Various Copulas}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+library(copula)
+library(basecor)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+### FGM and Frank Copulas
+
+Seems to agree with copula package for these copulas. 
+
+```{r}
+cop <- fgmCopula(1)
+rho(cop)
+basecor(cop)
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+
+cop <- frankCopula(2)
+rho(cop)
+basecor(cop)
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+```
+
+### Gumbel, Clayton and Joe Copulas (with tail dependence)
+
+For Spearman's rank there are discrepancies between our values and the ones in the copula package for Gumbel and Clayton - need to work out why. However, the integrals over density and copula in our package are consistent with each other. Spearman's rank does not appear to have been implemented for Joe copula in copula package.
+
+```{r}
+cop <- claytonCopula(1.5)
+rho(cop)
+basecor(cop)
+basecor(cop, method = "d")
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+
+cop <- gumbelCopula(1.5)
+rho(cop)
+basecor(cop)
+basecor(cop, method = "d")
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+
+cop <- joeCopula(1.5)
+basecor(cop)
+basecor(cop, method = "d")
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+
+
+```
+
+### Gauss Copula
+
+This case gives some faith in the integrals - they are only out at the 7th digit after the point.
+
+```{r}
+rho <- 0.7
+cop <- normalCopula(rho)
+(6/pi)*asin(rho/2)
+rho(cop)
+basecor(cop)
+basecor(cop, method = "d")
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+```
+
+### t Copula
+
+Spearman's rho is not evaluated for the t copula in the copula package. Moreover, the copula cdf is only available for integer degrees of freedom.
+
+```{r}
+rho <- 0.7
+nu <- 4
+cop <- tCopula(rho, df = nu)
+basecor(cop)
+basecor(cop, method = "d")
+basecor(cop, 1, 2)
+basecor(cop, 2, 2)
+```
