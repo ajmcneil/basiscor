@@ -1,7 +1,7 @@
 Package: basiscor
 Type: Package
 Title: Orthonormal basis Correlations
-Version: 1.1.1
+Version: 1.1.2
 Date: 2025-09-04
 Authors@R: c(person("Alexander J.", "McNeil", email = "alexanderjmcneil@gmail.com", 
                   role = c("aut", "cre")),
