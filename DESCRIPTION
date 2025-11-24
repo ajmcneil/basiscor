@@ -1,7 +1,7 @@
 Package: basiscor
 Type: Package
 Title: Orthonormal basis Correlations
-Version: 1.1.3
+Version: 1.1.4
 Date: 2025-11-19
 Authors@R: c(person("Alexander J.", "McNeil", email = "alexanderjmcneil@gmail.com", 
                   role = c("aut", "cre")),
@@ -25,5 +25,6 @@ Collate:
     'legendre.R'
     'basis.R'
     'corfunctions.R'
+    'expansion.R'
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
