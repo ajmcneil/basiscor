@@ -153,6 +153,36 @@ basiscormatrix <- function(object, maxorder = 4, symmetric = FALSE, ...){
   output
 }
 
+#' Extremal Basis Correlation for Two Shifted Legendre Polynomials
+#'
+#' The maximum (`case = "max"`) or minimum (`case = "min"`) value attainable
+#' by the population basis correlation \code{basiscor(copula, j, k)} over all
+#' copulas, given by matching the quantile functions of \eqn{P_j(U)} and
+#' \eqn{P_k(U)} comonotonically (max) or countermonotonically (min), where
+#' \eqn{P_j = \sqrt{2j+1} L_j} is the orthonormal shifted Legendre polynomial
+#' of degree \code{j}. Uses \code{udp::udpquantile()}, the quantile function
+#' of \eqn{L_j(U)} carried by \code{udp::udplegendre(j)}.
+#'
+#' @param j degree of first polynomial
+#' @param k degree of second polynomial
+#' @param case character variable which should be "max" or "min"
+#'
+#' @return value of extremal Legendre correlation
+#' @export
+#'
+#' @examples
+#' extremalLegendre(3, 4)
+extremalLegendre <- function(j, k, case = "max") {
+  Tj <- udp::udplegendre(j)
+  Tk <- udp::udplegendre(k)
+  integrand <- switch(case,
+    max = function(u) udp::udpquantile(Tj, u) * udp::udpquantile(Tk, u),
+    min = function(u) udp::udpquantile(Tj, u) * udp::udpquantile(Tk, 1 - u),
+    stop("Unknown case for extremum")
+  )
+  sqrt(2 * j + 1) * sqrt(2 * k + 1) * stats::integrate(integrand, 0, 1)$value
+}
+
 #' Compute Sample Basis Correlation
 #'
 #' @param data a matrix of data wit two columns.

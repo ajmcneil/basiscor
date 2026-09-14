@@ -14,8 +14,7 @@ basisexpand(data, maxorder = 8, type = "legendre")
 \item{type}{character variable specifying type of basis correlation taking values "legendre" or "cosine"}
 }
 \value{
-a bex object comprising 4 components: type of basis correlation, maximum value of 
-generalized Spearman correlation, weights for first function, and weights for second function.
+an object of class \linkS4class{bex}.
 }
 \description{
 Find Basis Expansion Maximizing Generalized Spearman Correlation

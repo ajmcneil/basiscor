@@ -15,16 +15,16 @@ Description: Functions for orthonormal basis correlations.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Lazydata: true
-RoxygenNote: 7.3.3
 Encoding: UTF-8
 Imports: methods,
          stats,
          copula,
-         orthopolynom
+         udp
+Remotes: ajmcneil/udp
 Collate:
-    'legendre.R'
     'basis.R'
     'corfunctions.R'
     'expansion.R'
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.1.0
