@@ -1,0 +1,142 @@
+---
+title: "Basis Expansions and the bex Class"
+author: "McNeil, Neslehova, Smith"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basis Expansions and the bex Class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 5,
+  fig.height = 4,
+  fig.align = "center"
+)
+```
+
+```{r library}
+library(basiscor)
+library(udp)
+```
+
+`basisexpand()` looks for the pair of functions `g`, `h` -- each a linear
+combination of the first `maxorder` orthonormal basis functions (shifted
+Legendre polynomials, or a cosine basis) -- that maximises the generalized
+Spearman correlation between `g(X1)` and `h(X2)` for a bivariate sample `X`.
+The result is a \linkS4class{bex} object, which also carries the pair of
+**udp** transformations `Tg(u) = F(g(u))`, `Th(u) = F(h(u))` built from `g`
+and `h`. This vignette illustrates `bex` on the same awkwardly-dependent
+dataset that the **udp** package's own vignette (`vignette("udp", package =
+"udp")`) uses to illustrate `aceshuffle()`, so the two can be compared
+directly: `aceshuffle()` looks for the best pair of piecewise-linear
+*shuffles*, `basisexpand()` for the best pair of smooth, low-dimensional
+*polynomial* (or cosine) transformations.
+
+## The same folded data as the udp vignette
+
+Two degree-fixed **udp** transformations -- `udplegendre(5)` and
+`udpcosine(6)` -- are used to fold each margin of a strongly dependent Gumbel
+copula sample, via stochastic inversion (`udpsi()`). This destroys the
+ordinary correlation almost entirely while leaving a highly structured,
+non-monotonic dependence behind.
+
+```{r data}
+T5 <- udplegendre(5)
+T3 <- udpcosine(6)
+
+set.seed(1)
+n <- 1000
+GC <- copula::gumbelCopula(3)
+W <- copula::rCopula(n, GC)
+X <- cbind(udpsi(T5, W[, 1]), udpsi(T3, W[, 2]))
+
+cor(W)[1, 2]
+cor(X)[1, 2]
+```
+
+```{r data-plot}
+plot(X, pch = 20, cex = 0.4, xlab = "X1", ylab = "X2")
+```
+
+## Finding a basis expansion
+
+`basisexpand()` computes the `maxorder` by `maxorder` matrix of sample basis
+correlations between the two margins (via `basiscormatrix()`) and takes its
+leading singular vectors as the weights `alphag`, `alphah` of `g` and `h`.
+
+```{r basisexpand}
+bex <- basisexpand(X)
+bex
+```
+
+`maxcor` is the generalized Spearman correlation attained by this pair --
+already well above the raw `cor(X)`, and, as the next section shows, close to
+the correlation of the original copula sample `W`.
+
+The raw expansions `g`, `h` (black, red) can be plotted directly:
+
+```{r plot-raw}
+plot(bex)
+```
+
+## The recovered udp transformations
+
+With `udp = TRUE`, `plot()` draws the udp transformations `Tg`, `Th` instead
+of the raw expansions. Overlaid in the same colours, dashed, are the *true*
+transformations `T5` and `T3` used to build `X` above.
+
+```{r plot-udp}
+plot(bex, udp = TRUE)
+u <- seq(0, 1, length.out = 400)
+lines(u, udptrans(T5, u), col = "black", lty = 2)
+lines(u, udptrans(T3, u), col = "red", lty = 2)
+legend("bottomright",
+  legend = c("fitted Tg", "fitted Th", "true T5", "true T3"),
+  col = c("black", "red", "black", "red"), lty = c(1, 1, 2, 2), cex = 0.8
+)
+```
+
+Both curves are highly oscillatory, which makes an exact-looking overlay by
+eye hard even when the recovery is good; a more direct check is the
+correlation between the fitted and true transformations evaluated on a grid,
+which is high for the matching pair and near zero for the mismatched one:
+
+```{r plot-udp-check}
+data.frame(
+  cor_Tg_T5 = cor(udptrans(bex@Tg, u), udptrans(T5, u)),
+  cor_Tg_T3 = cor(udptrans(bex@Tg, u), udptrans(T3, u)),
+  cor_Th_T5 = cor(udptrans(bex@Th, u), udptrans(T5, u)),
+  cor_Th_T3 = cor(udptrans(bex@Th, u), udptrans(T3, u))
+)
+```
+
+As with `aceshuffle()`'s shuffles (see the **udp** vignette), the fitted pair
+is unique only up to the joint reflection `(g, h) -> (-g, -h)`, equivalently
+`(Tg, Th) -> (1 - Tg, 1 - Th)`, which leaves the correlation unchanged;
+`basisexpand()` picks an orientation but it is not guaranteed to match the one
+used to generate the data. If an overlay comes out reflected, compare against
+`1 - udptrans(...)` instead.
+
+## Undoing the fold
+
+`udptrans()` applied to a \linkS4class{bex} object transforms both columns of
+a bivariate `(0, 1)` matrix at once, `cbind(udptrans(Tg, X[, 1]), udptrans(Th,
+X[, 2]))`, recovering data that is once again close to linearly correlated:
+
+```{r udptrans-bex}
+V <- udptrans(bex, X)
+plot(V, pch = 20, cex = 0.4, xlab = "V1", ylab = "V2")
+c(fitted = bex@maxcor, achieved = cor(V)[1, 2], original = cor(W)[1, 2])
+```
+
+## References
+
+- McNeil, A. J. (2021). Modelling volatile time series with v-transforms and
+  copulas. *Risks*, **9**(1), 14.
+- McNeil, A. J., Nešlehová, J. G. and Smith, A. D. (2025). Measures and models
+  of non-monotonic dependence. arXiv:2512.10828.
