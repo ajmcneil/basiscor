@@ -3,13 +3,8 @@ Type: Package
 Title: Orthonormal Basis Correlations
 Version: 1.1.5
 Date: 2026-09-15
-Authors@R: c(person("Alexander J.", "McNeil", email = "alexanderjmcneil@gmail.com",
-                  role = c("aut", "cre")),
-                  person("Johanna", "Neslehova", email = "johanna.neslehova@mcgill.ca",
-                  role = "aut"),
-                  person("Andrew D.", "Smith", email = "ansmith@ucd.ie",
-                  role = "aut")
-                  )
+Authors@R: person("Alexander J.", "McNeil", email = "alexanderjmcneil@gmail.com",
+                  role = c("aut", "cre"))
 Maintainer: Alexander J. McNeil <alexanderjmcneil@gmail.com>
 Description: Computes and estimates orthonormal basis correlations, a
     family of generalizations of Spearman's rank correlation built from

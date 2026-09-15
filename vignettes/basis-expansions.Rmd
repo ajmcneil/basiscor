@@ -1,6 +1,6 @@
 ---
 title: "Basis Expansions and the bex Class"
-author: "McNeil, Neslehova, Smith"
+author: "Alexander J. McNeil"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
