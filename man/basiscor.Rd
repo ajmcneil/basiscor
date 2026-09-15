@@ -13,7 +13,11 @@ basiscor(object, j = 1L, k = 1L, ...)
 
 \item{k}{non-negative integer giving order of second polynomial.}
 
-\item{...}{other arguments to function.}
+\item{...}{further arguments passed on to \code{\link{basiscordata}} (when
+\code{object} is a data matrix) or \code{\link{basiscorcopula}}
+(otherwise), such as \code{type} (\code{"legendre"} or \code{"cosine"})
+and, for \code{basiscordata}, \code{method}, or for
+\code{basiscorcopula}, \code{method} (\code{"p"} or \code{"d"}).}
 }
 \value{
 value of polynomial rank correlation.

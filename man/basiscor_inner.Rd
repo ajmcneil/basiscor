@@ -4,7 +4,7 @@
 \alias{basiscor_inner}
 \title{Inner Integrand for Basis Correlation}
 \usage{
-basiscor_inner(u, v, j, k, copobj, copula, method, type, ...)
+basiscor_inner(u, v, j, k, copobj, cop, method, type, ...)
 }
 \arguments{
 \item{u}{vector argument of function.}
@@ -17,7 +17,7 @@ basiscor_inner(u, v, j, k, copobj, copula, method, type, ...)
 
 \item{copobj}{logical parameter for copula object.}
 
-\item{copula}{an object of class parCopula or a function.}
+\item{cop}{an object of class parCopula or a function.}
 
 \item{method}{method of calculation which can be "p" or "d".}
 
