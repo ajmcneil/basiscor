@@ -26,7 +26,7 @@ library(udp)
 
 `basisexpand()` looks for the pair of functions `g`, `h` -- each a linear
 combination of the first `maxorder` orthonormal basis functions (shifted
-Legendre polynomials, or a cosine basis) -- that maximises the generalized
+Legendre polynomials, or a cosine basis) -- that maximizes the generalized
 Spearman correlation between `g(X1)` and `h(X2)` for a bivariate sample `X`.
 The result is a \linkS4class{bex} object, which also carries the pair of
 **udp** transformations `Tg(u) = F(g(u))`, `Th(u) = F(h(u))` built from `g`

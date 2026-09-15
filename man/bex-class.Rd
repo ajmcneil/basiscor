@@ -21,7 +21,7 @@
 \description{
 A `bex` object packages the pair of basis-function expansions `g(u) =
 sum_i alphag[i] * basisfunc(u, i, type)` and `h(u) = sum_i alphah[i] *
-basisfunc(u, i, type)` that jointly maximise the generalized Spearman
+basisfunc(u, i, type)` that jointly maximize the generalized Spearman
 correlation `maxcor` between the two margins of a bivariate sample (see
 [basisexpand()]), together with the corresponding \pkg{udp}
 uniform-distribution-preserving transformations `Tg`, `Th` -- `Tg(u) =
