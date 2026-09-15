@@ -56,4 +56,4 @@ uniform-distribution-preserving transformations.
 
 ## License
 
-GPL-3 © Alexander J. McNeil, Johanna Nešlehová, Andrew D. Smith
+GPL-3 © Alexander J. McNeil
