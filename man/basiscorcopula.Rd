@@ -11,7 +11,10 @@ basiscorcopula(
   copobj,
   method = "p",
   type = "legendre",
-  ngrid = if (method == "d") 80L else 40L,
+  ngrid = 40L,
+  ngrid0 = 20L,
+  reltol = 1e-04,
+  ngridmax = 320L,
   ...
 )
 }
@@ -29,12 +32,17 @@ basiscorcopula(
 \item{type}{type of basis correlation can be legendre or cosine.}
 
 \item{ngrid}{number of Gauss-Legendre nodes per axis used to evaluate the
-double integral. Defaults to 40 for `method = "p"` (accurate to within
-about 6e-5 for degree up to `(7, 8)`, validated across several copula
-families) and 80 for `method = "d"` (the density integrand converges
-more slowly for strongly dependent, low-degrees-of-freedom copulas such
-as `tCopula`; push `ngrid` toward 150-200 for those if `"p"`-level
-accuracy is needed).}
+double integral for `method = "p"`. The default of 40 is accurate to
+within about 6e-5 for degree up to `(7, 8)`, validated across several
+copula families. Ignored for `method = "d"`; see `ngrid0`.}
+
+\item{ngrid0, reltol, ngridmax}{for `method = "d"` only: the density
+integrand can need anywhere from very few to very many nodes depending
+on the copula's own dependence structure, not predictably on `j`, `k`,
+so the node count is chosen adaptively -- starting at `ngrid0` nodes per
+axis, doubling and comparing successive estimates until they agree to
+within `reltol` (relative to the finer one) or `ngridmax` is reached.
+Defaults `ngrid0 = 20`, `reltol = 1e-4`, `ngridmax = 320`.}
 
 \item{...}{other arguments to function.}
 }

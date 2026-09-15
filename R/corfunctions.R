@@ -36,39 +36,59 @@ gauss_legendre_01 <- function(n) {
 }
 
 # Tensor-product Gauss-Legendre quadrature for basiscorcopula()'s double
-# integral, replacing basiscor_outer()'s nested stats::integrate() for both
-# method = "p" and method = "d".
-#
-# method = "p": the integrand is smooth (built from pCopula and the
-# derivative of a fixed-degree polynomial/cosine basis function, never the
-# copula density). Validated against a 300-node-per-axis reference across
-# several copula families at degree up to (7, 8): error <= 6e-5 at ngrid =
-# 40, comfortably inside stats::integrate()'s own ~1.2e-4 default tolerance,
-# at roughly 1.5-2x the speed -- replacing many small nested adaptive
-# integrate() calls with one vectorized evaluation of the copula.
-#
-# method = "d" uses the copula density directly, which is far more expensive
-# per evaluation for elliptical copulas (normal, t) -- exactly the families
-# method = "d" exists for, since their pCopula has no closed form -- so the
-# same one-vectorized-batch trick is a much bigger win there (~13x at ngrid =
-# 40 for a t copula) than for method = "p". It also fixes a real reliability
-# problem: stats::integrate() on the nested density integrand returns NA
-# outright for some entirely ordinary cases (e.g. normalCopula(0.6) at j = 6,
-# k = 6), not just for extreme tail-dependence parameters. But the density
-# integrand converges more slowly than "p"'s: for strongly dependent,
-# low-degrees-of-freedom t copulas at higher polynomial degree, ngrid = 40
-# can be off by ~1% and ngrid = 150-200 is needed to match "p"-level (~1e-4)
-# accuracy. basiscorcopula() therefore defaults ngrid to 80 for method = "d"
-# (not 40): a compromise that stays reliable and meaningfully faster than the
-# old code even in the hard cases, while getting close to "p"-level accuracy
-# for the more common, more weakly dependent cases -- see
-# basiscorcopula()'s ngrid documentation for how to tighten it further.
+# integral at a single fixed node count, replacing basiscor_outer()'s nested
+# stats::integrate(). Used directly by method = "p" (see basiscorcopula()),
+# and as the building block of basiscorcopula_gl_adaptive() for method = "d".
 basiscorcopula_gl <- function(cop, j, k, copobj, method, type, ngrid, ...) {
   GL <- gauss_legendre_01(ngrid)
   uv <- expand.grid(u = GL$nodes, v = GL$nodes)
   w <- as.vector(outer(GL$weights, GL$weights))
   vals <- basiscor_inner(uv$u, uv$v, j, k, copobj, cop, method, type, ...)
   sum(w * vals)
+}
+
+# method = "p"'s integrand is smooth (built from pCopula and the derivative
+# of a fixed-degree polynomial/cosine basis function, never the copula
+# density): validated against a 300-node-per-axis reference across several
+# copula families at degree up to (7, 8), error <= 6e-5 at a single fixed
+# ngrid = 40, comfortably inside stats::integrate()'s own ~1.2e-4 default
+# tolerance, at roughly 1.5-2x the speed of the nested adaptive calls it
+# replaces.
+#
+# method = "d" uses the copula density directly, which is far more expensive
+# per evaluation for elliptical copulas (normal, t) -- exactly the families
+# method = "d" exists for, since their pCopula has no closed form -- so the
+# same one-vectorized-batch trick is a much bigger win there when it applies.
+# It also fixes a real reliability problem: stats::integrate() on the nested
+# density integrand returns NA outright for some entirely ordinary cases
+# (e.g. normalCopula(0.3) at j = 6, k = 6), not just extreme ones.
+#
+# But unlike "p", a single fixed node count is the wrong shape of fix for
+# "d": how much resolution the density integrand needs turns out to depend
+# on the copula's own dependence structure (how concentrated its density
+# is), not predictably on j, k -- a strongly dependent, low-degrees-of-
+# freedom t copula is already hard at j = k = 1, while an ordinary one stays
+# easy even at high degree. A fixed large ngrid is wasted work on the easy
+# majority; a fixed small one is inaccurate on the hard minority.
+# basiscorcopula_gl_adaptive() instead starts small (ngrid0, cheap even for
+# easy cases -- comparable cost to the old adaptive integrate()) and doubles
+# the node count, comparing successive estimates, until they agree to
+# reltol or ngridmax is reached, so the cost automatically follows the
+# difficulty of the specific (copula, j, k) at hand.
+basiscorcopula_gl_adaptive <- function(cop, j, k, copobj, method, type, ngrid0, reltol, ngridmax, ...) {
+  n <- ngrid0
+  val <- basiscorcopula_gl(cop, j, k, copobj, method, type, n, ...)
+  while (n < ngridmax) {
+    n2 <- min(2L * n, ngridmax)
+    val2 <- basiscorcopula_gl(cop, j, k, copobj, method, type, n2, ...)
+    converged <- abs(val2 - val) <= reltol * max(1, abs(val2))
+    n <- n2
+    val <- val2
+    if (converged) {
+      break
+    }
+  }
+  val
 }
 
 #' Compute Basis Correlation
@@ -107,12 +127,16 @@ basiscor <- function(object, j = 1L, k = 1L, ...){
 #' @param method method of calculation which can be "p" or "d".
 #' @param type type of basis correlation can be legendre or cosine.
 #' @param ngrid number of Gauss-Legendre nodes per axis used to evaluate the
-#'   double integral. Defaults to 40 for `method = "p"` (accurate to within
-#'   about 6e-5 for degree up to `(7, 8)`, validated across several copula
-#'   families) and 80 for `method = "d"` (the density integrand converges
-#'   more slowly for strongly dependent, low-degrees-of-freedom copulas such
-#'   as `tCopula`; push `ngrid` toward 150-200 for those if `"p"`-level
-#'   accuracy is needed).
+#'   double integral for `method = "p"`. The default of 40 is accurate to
+#'   within about 6e-5 for degree up to `(7, 8)`, validated across several
+#'   copula families. Ignored for `method = "d"`; see `ngrid0`.
+#' @param ngrid0,reltol,ngridmax for `method = "d"` only: the density
+#'   integrand can need anywhere from very few to very many nodes depending
+#'   on the copula's own dependence structure, not predictably on `j`, `k`,
+#'   so the node count is chosen adaptively -- starting at `ngrid0` nodes per
+#'   axis, doubling and comparing successive estimates until they agree to
+#'   within `reltol` (relative to the finer one) or `ngridmax` is reached.
+#'   Defaults `ngrid0 = 20`, `reltol = 1e-4`, `ngridmax = 320`.
 #' @param ... other arguments to function.
 #'
 #' @return value of polynomial rank correlation.
@@ -122,7 +146,8 @@ basiscor <- function(object, j = 1L, k = 1L, ...){
 #' @examples
 #' basiscorcopula(copula::claytonCopula(2), 2, 2, copobj = TRUE)
 basiscorcopula <- function(cop, j = 1L, k = 1L, copobj, method = "p",
-                          type = "legendre", ngrid = if (method == "d") 80L else 40L, ...){
+                          type = "legendre", ngrid = 40L,
+                          ngrid0 = 20L, reltol = 1e-4, ngridmax = 320L, ...){
   method <- match.arg(method, c("p", "d"))
   type <- match.arg(type, c("legendre", "cosine"))
   dg <- validate_degrees(j, k)
@@ -136,7 +161,11 @@ basiscorcopula <- function(cop, j = 1L, k = 1L, copobj, method = "p",
     if (methods::is(cop, "tCopula") && cop@parameters[cop@param.names == "df"] %% 1 != 0) # pCopula not implemented for non-integer df
       method <- "d"
   }
-  result <- basiscorcopula_gl(cop, j, k, copobj, method, type, ngrid, ...)
+  result <- if (method == "p") {
+    basiscorcopula_gl(cop, j, k, copobj, method, type, ngrid, ...)
+  } else {
+    basiscorcopula_gl_adaptive(cop, j, k, copobj, method, type, ngrid0, reltol, ngridmax, ...)
+  }
   if (method == "p"){
     if (type == "cosine")
       result <- result -2
