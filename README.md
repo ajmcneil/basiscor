@@ -1,5 +1,9 @@
 # basiscor
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/ajmcneil/basiscor/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ajmcneil/basiscor/actions/workflows/R-CMD-check.yaml)
+<!-- badges: end -->
+
 `basiscor` computes **orthonormal basis correlations**: a family of
 generalizations of Spearman's rank correlation, built from orthonormal basis
 functions (shifted Legendre polynomials, or a cosine basis) of the two
