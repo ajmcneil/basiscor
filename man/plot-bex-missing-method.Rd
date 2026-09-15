@@ -28,8 +28,10 @@
 No return value, generates a plot.
 }
 \description{
-Draws the pair of expansion functions `g`, `h` over `[0, 1]`, or, with
-`udp = TRUE`, their \pkg{udp} transformations `Tg`, `Th`.
+Draws the pair of expansion functions `g`, `h` over `[0, 1]` side by side,
+or, with `udp = TRUE`, their \pkg{udp} transformations `Tg`, `Th`. Both
+panels share a common y-axis range and are drawn in the default line
+colour.
 }
 \examples{
 data <- copula::rCopula(1000, copula::tCopula(0, df = 1))

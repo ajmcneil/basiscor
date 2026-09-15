@@ -100,8 +100,10 @@ basisexpand <- function(data, maxorder = 8, type = "legendre") {
 
 #' Plot a Basis Expansion
 #'
-#' Draws the pair of expansion functions `g`, `h` over `[0, 1]`, or, with
-#' `udp = TRUE`, their \pkg{udp} transformations `Tg`, `Th`.
+#' Draws the pair of expansion functions `g`, `h` over `[0, 1]` side by side,
+#' or, with `udp = TRUE`, their \pkg{udp} transformations `Tg`, `Th`. Both
+#' panels share a common y-axis range and are drawn in the default line
+#' colour.
 #'
 #' @param x an object of class \linkS4class{bex}.
 #' @param n number of grid points for plotting.
@@ -128,8 +130,16 @@ setMethod("plot", c(x = "bex", y = "missing"), function(x, n = 500L, udp = FALSE
     gvals <- as.vector(B %*% x@alphag)
     hvals <- as.vector(B %*% x@alphah)
   }
-  plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = range(gvals, hvals), ...)
-  graphics::lines(u, hvals, col = "red")
+  ylim <- range(gvals, hvals)
+  op <- graphics::par(mfrow = c(1, 2))
+  on.exit(graphics::par(op))
+  if (udp) {
+    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, main = "Tg", ...)
+    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, main = "Th", ...)
+  } else {
+    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, main = "g", ...)
+    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, main = "h", ...)
+  }
 })
 
 #' @describeIn bex-class Apply the pair of udp transformations `Tg`, `Th` of

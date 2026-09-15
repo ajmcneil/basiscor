@@ -78,7 +78,7 @@ bex
 already well above the raw `cor(X)`, and, as the next section shows, close to
 the correlation of the original copula sample `W`.
 
-The raw expansions `g`, `h` (black, red) can be plotted directly:
+The raw expansions `g`, `h` can be plotted side by side:
 
 ```{r plot-raw}
 plot(bex)
@@ -87,18 +87,27 @@ plot(bex)
 ## The recovered udp transformations
 
 With `udp = TRUE`, `plot()` draws the udp transformations `Tg`, `Th` instead
-of the raw expansions. Overlaid in the same colours, dashed, are the *true*
-transformations `T5` and `T3` used to build `X` above.
+of the raw expansions, again side by side.
 
 ```{r plot-udp}
 plot(bex, udp = TRUE)
+```
+
+Overlaying each fitted transformation against the *true* one used to build
+its margin of `X` checks the recovery directly: `Tg` against `T5` (margin 1),
+`Th` against `T3` (margin 2).
+
+```{r plot-udp-overlay, fig.width = 8}
 u <- seq(0, 1, length.out = 400)
-lines(u, udptrans(T5, u), col = "black", lty = 2)
+op <- par(mfrow = c(1, 2))
+plot(u, udptrans(bex@Tg, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, main = "margin 1")
+lines(u, udptrans(T5, u), col = "red", lty = 2)
+legend("bottomright", legend = c("fitted Tg", "true T5"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
+
+plot(u, udptrans(bex@Th, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, main = "margin 2")
 lines(u, udptrans(T3, u), col = "red", lty = 2)
-legend("bottomright",
-  legend = c("fitted Tg", "fitted Th", "true T5", "true T3"),
-  col = c("black", "red", "black", "red"), lty = c(1, 1, 2, 2), cex = 0.8
-)
+legend("bottomright", legend = c("fitted Th", "true T3"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
+par(op)
 ```
 
 Both curves are highly oscillatory, which makes an exact-looking overlay by
