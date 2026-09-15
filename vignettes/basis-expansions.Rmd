@@ -145,7 +145,5 @@ c(fitted = bex@maxcor, achieved = cor(V)[1, 2], original = cor(W)[1, 2])
 
 ## References
 
-- McNeil, A. J. (2021). Modelling volatile time series with v-transforms and
-  copulas. *Risks*, **9**(1), 14.
 - McNeil, A. J., Nešlehová, J. G. and Smith, A. D. (2025). Measures and models
   of non-monotonic dependence. arXiv:2512.10828.
