@@ -13,7 +13,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  fig.width = 4.5,
+  fig.width = 3.9,
   fig.height = 4.5,
   fig.align = "center"
 )
@@ -60,7 +60,7 @@ cor(X)[1, 2]
 ```
 
 ```{r data-plot}
-plot(X, pch = 20, cex = 0.4, xlab = "X1", ylab = "X2", asp = 1)
+plot(X, pch = 20, cex = 0.4, xlab = "X1", ylab = "X2", asp = 1, xaxs = "i", yaxs = "i")
 ```
 
 ## Finding a basis expansion
@@ -80,7 +80,7 @@ the correlation of the original copula sample `W`.
 
 The raw expansions `g`, `h` can be plotted side by side:
 
-```{r plot-raw, fig.width = 9}
+```{r plot-raw, fig.width = 7.8}
 plot(bex)
 ```
 
@@ -89,7 +89,7 @@ plot(bex)
 With `udp = TRUE`, `plot()` draws the udp transformations `Tg`, `Th` instead
 of the raw expansions, again side by side.
 
-```{r plot-udp, fig.width = 9}
+```{r plot-udp, fig.width = 7.8}
 plot(bex, udp = TRUE)
 ```
 
@@ -97,14 +97,14 @@ Overlaying each fitted transformation against the *true* one used to build
 its margin of `X` checks the recovery directly: `Tg` against `T5` (margin 1),
 `Th` against `T3` (margin 2).
 
-```{r plot-udp-overlay, fig.width = 9}
+```{r plot-udp-overlay, fig.width = 7.8}
 u <- seq(0, 1, length.out = 400)
 op <- par(mfrow = c(1, 2))
-plot(u, udptrans(bex@Tg, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, main = "margin 1")
+plot(u, udptrans(bex@Tg, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, xaxs = "i", yaxs = "i", main = "margin 1")
 lines(u, udptrans(T5, u), col = "red", lty = 2)
 legend("bottomright", legend = c("fitted Tg", "true T5"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
 
-plot(u, udptrans(bex@Th, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, main = "margin 2")
+plot(u, udptrans(bex@Th, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, xaxs = "i", yaxs = "i", main = "margin 2")
 lines(u, udptrans(T3, u), col = "red", lty = 2)
 legend("bottomright", legend = c("fitted Th", "true T3"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
 par(op)
@@ -139,7 +139,7 @@ X[, 2]))`, recovering data that is once again close to linearly correlated:
 
 ```{r udptrans-bex}
 V <- udptrans(bex, X)
-plot(V, pch = 20, cex = 0.4, xlab = "V1", ylab = "V2", asp = 1)
+plot(V, pch = 20, cex = 0.4, xlab = "V1", ylab = "V2", asp = 1, xaxs = "i", yaxs = "i")
 c(fitted = bex@maxcor, achieved = cor(V)[1, 2], original = cor(W)[1, 2])
 ```
 

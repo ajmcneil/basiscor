@@ -134,11 +134,11 @@ setMethod("plot", c(x = "bex", y = "missing"), function(x, n = 500L, udp = FALSE
   op <- graphics::par(mfrow = c(1, 2))
   on.exit(graphics::par(op))
   if (udp) {
-    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, main = "Tg", ...)
-    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, main = "Th", ...)
+    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Tg", ...)
+    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Th", ...)
   } else {
-    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, main = "g", ...)
-    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, main = "h", ...)
+    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, xaxs = "i", yaxs = "i", main = "g", ...)
+    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, xaxs = "i", yaxs = "i", main = "h", ...)
   }
 })
 
