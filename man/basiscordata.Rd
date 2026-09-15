@@ -4,7 +4,7 @@
 \alias{basiscordata}
 \title{Compute Sample Basis Correlation}
 \usage{
-basiscordata(data, j, k, type = "legendre", method = "T1")
+basiscordata(data, j, k, type = "legendre", method = "T3")
 }
 \arguments{
 \item{data}{a matrix of data wit two columns.}

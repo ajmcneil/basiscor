@@ -251,7 +251,7 @@ extremalLegendre <- function(j, k, case = "max") {
 #' @return sample polynomial rank correlation value.
 #' @export
 #'
-basiscordata <- function(data, j, k, type = "legendre", method = "T1"){
+basiscordata <- function(data, j, k, type = "legendre", method = "T3"){
   type <- match.arg(type, c("legendre", "cosine"))
   method <- match.arg(method, c("T1", "T2", "T3", "T4", "T5", "T6"))
   if (! methods::is(data, "matrix"))
