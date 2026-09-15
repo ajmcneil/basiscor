@@ -9,7 +9,7 @@ discreteLegendre(r, n, degree)
 \arguments{
 \item{r}{rank of observation in sample.}
 
-\item{n}{size of sample/}
+\item{n}{size of sample.}
 
 \item{degree}{non-negative integer giving degree of polynomial.}
 }

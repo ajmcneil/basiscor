@@ -17,5 +17,9 @@ basisderiv(x, degree, type = "legendre")
 vector of values of derivative of basis function.
 }
 \description{
-Derivative of Orthonormal Basis Function
+The derivative of \code{\link{basisfunc}}. Used by
+\code{\link{basiscorcopula}}'s `method = "p"` integrand.
+}
+\examples{
+basisderiv(seq(0, 1, by = 0.25), 3)
 }

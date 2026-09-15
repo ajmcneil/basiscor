@@ -17,5 +17,11 @@ basisintegral(x, degree, type = "legendre")
 vector of values of integrated basis function.
 }
 \description{
-Integrated Orthonormal Basis Function
+The indefinite integral (antiderivative vanishing at 0) of
+\code{\link{basisfunc}}. Used by \code{\link{basiscordata}}'s `"T5"`
+method, which integrates each basis function exactly over a rank's unit
+interval rather than evaluating it at a single pseudo-observation.
+}
+\examples{
+basisintegral(seq(0, 1, by = 0.25), 3)
 }

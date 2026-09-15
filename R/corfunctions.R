@@ -93,6 +93,21 @@ basiscorcopula_gl_adaptive <- function(cop, j, k, copobj, method, type, ngrid0, 
 
 #' Compute Basis Correlation
 #'
+#' The basis correlation between two degree-`j`, `k` orthonormal basis
+#' functions (shifted Legendre polynomials by default, or a cosine basis
+#' with `type = "cosine"`) of the two margins of a bivariate distribution.
+#' At `j = k = 1` this is exactly Spearman's rho: the orthonormal degree-1
+#' shifted Legendre polynomial is \eqn{P_1(u) = \sqrt{3}(2u - 1)}, so
+#' \code{basiscor(cop, 1, 1) = 3 E[(2U-1)(2V-1)] = 12 Cov(U, V)}, the usual
+#' definition. Higher-degree basis correlations pick up dependence that
+#' ordinary correlation and Spearman's rho miss, including non-monotonic
+#' dependence.
+#'
+#' `basiscor()` is a single dispatching entry point: it computes the
+#' population value from a parametric copula object or a bivariate copula
+#' function (via \code{\link{basiscorcopula}}), or the sample value from a
+#' bivariate data matrix (via \code{\link{basiscordata}}).
+#'
 #' @param object an object of class copula or Copula, or a data matrix, or a bivariate function describing a copula.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
@@ -107,6 +122,9 @@ basiscorcopula_gl_adaptive <- function(cop, j, k, copobj, method, type, ngrid0, 
 #'
 #' @examples
 #' basiscor(copula::claytonCopula(2), 2, 2)
+#' basiscor(copula::claytonCopula(2), 1, 1) # Spearman's rho
+#' data <- copula::rCopula(1000, copula::claytonCopula(2))
+#' basiscor(data, 2, 2) # sample analogue, via basiscordata()
 basiscor <- function(object, j = 1L, k = 1L, ...){
   if (methods::is(object, "matrix"))
     basiscordata(object, j, k, ...)
@@ -120,11 +138,25 @@ basiscor <- function(object, j = 1L, k = 1L, ...){
 
 #' Compute Basis Correlation for Copula Object or Function
 #'
+#' The population basis correlation \code{\link{basiscor}} computes from a
+#' copula, evaluated by numerical integration of a double integral over the
+#' unit square rather than sampling. \code{cop} may be a `parCopula` object
+#' from the \pkg{copula} package (\code{copobj = TRUE}), or a bivariate
+#' function \code{cop(u, v, ...)} giving the copula's own distribution
+#' function directly (\code{copobj = FALSE}); the latter is only usable with
+#' \code{method = "p"}, since there is no density to fall back on.
+#'
 #' @param cop an object of class parCopula or a function.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
 #' @param copobj logical parameter for copula object.
-#' @param method method of calculation which can be "p" or "d".
+#' @param method method of calculation: `"p"` integrates against the
+#'   copula's distribution function `pCopula()` (the default -- faster, and
+#'   the only option when a family has no closed-form density); `"d"`
+#'   integrates against the density `dCopula()` (needed when a family has
+#'   no closed-form distribution function, such as the `t` copula with
+#'   non-integer degrees of freedom, which is detected automatically and
+#'   switches `method` to `"d"` regardless of what was requested).
 #' @param type type of basis correlation can be legendre or cosine.
 #' @param ngrid number of Gauss-Legendre nodes per axis used to evaluate the
 #'   double integral for `method = "p"`. The default of 40 is accurate to
@@ -215,9 +247,17 @@ basiscor_inner <- function(u, v, j, k, copobj, cop, method, type, ...){
 
 #' Compute Matrix of Basis Correlations
 #'
+#' Calls \code{\link{basiscor}} for every pair of degrees `1:maxorder`,
+#' returning the results as a matrix -- entry `[j, k]` is `basiscor(object,
+#' j, k, ...)`. This is what \code{\link{basisexpand}} uses to find its
+#' basis expansion.
+#'
 #' @param object an object of class copula or Copula, or a data matrix, or a bivariate function describing a copula.
 #' @param maxorder maximum order of the polynomials.
-#' @param symmetric logical variable stating whether matrix is known a priori to be symmetric.
+#' @param symmetric logical variable stating whether the matrix is known a
+#'   priori to be symmetric (true, for instance, for an exchangeable copula
+#'   with `j`, `k` given by the same margin ordering both times), halving
+#'   the number of calls to \code{\link{basiscor}}.
 #' @param ... other parameters passed to underlying functions.
 #'
 #' @return a square matrix with number of rows and columns equal to maxorder
@@ -271,14 +311,38 @@ extremalLegendre <- function(j, k, case = "max") {
 
 #' Compute Sample Basis Correlation
 #'
+#' The sample analogue of \code{\link{basiscor}}: a generalization of
+#' Spearman's rho computed from the ranks of a bivariate sample. At `j = k =
+#' 1` with the default `method = "T3"`, it is exactly the ordinary sample
+#' Spearman correlation.
+#'
 #' @param data a matrix of data wit two columns.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
 #' @param type character string specifying type of basis function and taking values "legendre" or "cosine".
-#' @param method method of calculation
+#' @param method method of calculation, turning the ranks `R1`, `R2` of the
+#'   two columns (sample size `n`) into a single value:
+#'   \describe{
+#'     \item{`"T1"`}{`mean(basisfunc(R1/(n+1), j) * basisfunc(R2/(n+1), k))`,
+#'       a covariance-type statistic on the midpoint pseudo-observations
+#'       `R/(n+1)`.}
+#'     \item{`"T2"`}{as `"T1"`, but on pseudo-observations `(R-0.5)/n`.}
+#'     \item{`"T3"`}{the default; `stats::cor()` (rather than the raw mean
+#'       product) of the same basis-function values as `"T1"`.}
+#'     \item{`"T4"`}{`stats::cor()` of the same values as `"T2"`.}
+#'     \item{`"T5"`}{exact integral of the basis functions over each rank's
+#'       unit interval, rather than evaluating at a single pseudo-observation.}
+#'     \item{`"T6"`}{an exact discrete-Legendre-polynomial estimator;
+#'       `type = "legendre"` only.}
+#'   }
 #'
 #' @return sample polynomial rank correlation value.
 #' @export
+#'
+#' @examples
+#' data <- copula::rCopula(1000, copula::claytonCopula(2))
+#' basiscordata(data, 1, 1) # equals cor(data[, 1], data[, 2], method = "spearman")
+#' basiscordata(data, 2, 3)
 #'
 basiscordata <- function(data, j, k, type = "legendre", method = "T3"){
   type <- match.arg(type, c("legendre", "cosine"))
@@ -325,7 +389,7 @@ lff <- function(r,k){
 #' 
 #'
 #' @param r rank of observation in sample.
-#' @param n size of sample/
+#' @param n size of sample.
 #' @param degree non-negative integer giving degree of polynomial.
 #'
 #' @return vector of values of polynomial.

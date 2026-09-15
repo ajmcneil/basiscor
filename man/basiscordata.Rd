@@ -15,11 +15,34 @@ basiscordata(data, j, k, type = "legendre", method = "T3")
 
 \item{type}{character string specifying type of basis function and taking values "legendre" or "cosine".}
 
-\item{method}{method of calculation}
+\item{method}{method of calculation, turning the ranks `R1`, `R2` of the
+two columns (sample size `n`) into a single value:
+\describe{
+  \item{`"T1"`}{`mean(basisfunc(R1/(n+1), j) * basisfunc(R2/(n+1), k))`,
+    a covariance-type statistic on the midpoint pseudo-observations
+    `R/(n+1)`.}
+  \item{`"T2"`}{as `"T1"`, but on pseudo-observations `(R-0.5)/n`.}
+  \item{`"T3"`}{the default; `stats::cor()` (rather than the raw mean
+    product) of the same basis-function values as `"T1"`.}
+  \item{`"T4"`}{`stats::cor()` of the same values as `"T2"`.}
+  \item{`"T5"`}{exact integral of the basis functions over each rank's
+    unit interval, rather than evaluating at a single pseudo-observation.}
+  \item{`"T6"`}{an exact discrete-Legendre-polynomial estimator;
+    `type = "legendre"` only.}
+}}
 }
 \value{
 sample polynomial rank correlation value.
 }
 \description{
-Compute Sample Basis Correlation
+The sample analogue of \code{\link{basiscor}}: a generalization of
+Spearman's rho computed from the ranks of a bivariate sample. At `j = k =
+1` with the default `method = "T3"`, it is exactly the ordinary sample
+Spearman correlation.
+}
+\examples{
+data <- copula::rCopula(1000, copula::claytonCopula(2))
+basiscordata(data, 1, 1) # equals cor(data[, 1], data[, 2], method = "spearman")
+basiscordata(data, 2, 3)
+
 }

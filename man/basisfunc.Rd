@@ -17,5 +17,14 @@ basisfunc(x, degree, type = "legendre")
 vector of values of basis function.
 }
 \description{
-Orthonormal Basis Function
+The degree-`degree` member of an orthonormal basis of `L^2[0, 1]`: the
+orthonormal shifted Legendre polynomial `P_degree(x) = sqrt(2 degree + 1)
+L_degree(x)` for `type = "legendre"` (the default), or a cosine basis
+function for `type = "cosine"`. These are the building blocks
+\code{\link{basiscor}} and \code{\link{basiscordata}} compute
+correlations between.
+}
+\examples{
+basisfunc(seq(0, 1, by = 0.25), 3)
+basisfunc(seq(0, 1, by = 0.25), 3, type = "cosine")
 }

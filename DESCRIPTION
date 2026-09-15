@@ -1,17 +1,26 @@
 Package: basiscor
 Type: Package
-Title: Orthonormal basis Correlations
-Version: 1.1.4
-Date: 2025-11-19
-Authors@R: c(person("Alexander J.", "McNeil", email = "alexanderjmcneil@gmail.com", 
+Title: Orthonormal Basis Correlations
+Version: 1.1.5
+Date: 2026-09-15
+Authors@R: c(person("Alexander J.", "McNeil", email = "alexanderjmcneil@gmail.com",
                   role = c("aut", "cre")),
-                  person("Johanna", "Neslehova", email = "johanna.neslehova@mcgill.ca", 
+                  person("Johanna", "Neslehova", email = "johanna.neslehova@mcgill.ca",
                   role = "aut"),
-                  person("Andrew D.", "Smith", email = "ansmith@ucd.ie", 
+                  person("Andrew D.", "Smith", email = "ansmith@ucd.ie",
                   role = "aut")
                   )
-Maintainer: Alexander J. McNeil <alexanderjmcneil@gmail.com>                   
-Description: Functions for orthonormal basis correlations.
+Maintainer: Alexander J. McNeil <alexanderjmcneil@gmail.com>
+Description: Computes and estimates orthonormal basis correlations, a
+    family of generalizations of Spearman's rank correlation built from
+    orthonormal basis functions (shifted Legendre polynomials or a cosine
+    basis) of the two uniform margins of a bivariate distribution. Provides
+    population values from parametric copula objects or bivariate copula
+    functions, sample values from data via several rank-based estimators,
+    the extremal (comonotonic/countermonotonic) bounds these correlations
+    can attain, and basis expansions that maximize a generalized Spearman
+    correlation between two margins, built on the 'udp' package's
+    uniform-distribution-preserving transformations.
 Depends: R (>= 3.5.0)
 License: GPL-3
 Lazydata: true

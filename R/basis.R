@@ -52,6 +52,13 @@ sLegendre <- function(x, degree = 1, deriv = FALSE) {
 
 #' Orthonormal Basis Function
 #'
+#' The degree-`degree` member of an orthonormal basis of `L^2[0, 1]`: the
+#' orthonormal shifted Legendre polynomial `P_degree(x) = sqrt(2 degree + 1)
+#' L_degree(x)` for `type = "legendre"` (the default), or a cosine basis
+#' function for `type = "cosine"`. These are the building blocks
+#' \code{\link{basiscor}} and \code{\link{basiscordata}} compute
+#' correlations between.
+#'
 #' @param x vector of values at which basis function should be evaluated.
 #' @param degree non-negative integer giving degree of function.
 #' @param type character string specifying type of basis function and taking values "legendre" or "cosine".
@@ -59,6 +66,9 @@ sLegendre <- function(x, degree = 1, deriv = FALSE) {
 #' @returns vector of values of basis function.
 #' @export
 #'
+#' @examples
+#' basisfunc(seq(0, 1, by = 0.25), 3)
+#' basisfunc(seq(0, 1, by = 0.25), 3, type = "cosine")
 basisfunc <- function(x, degree, type = "legendre") {
   switch(type,
     legendre = sLegendre(x, degree) * sqrt(2 * degree + 1),
@@ -68,6 +78,11 @@ basisfunc <- function(x, degree, type = "legendre") {
 
 #' Integrated Orthonormal Basis Function
 #'
+#' The indefinite integral (antiderivative vanishing at 0) of
+#' \code{\link{basisfunc}}. Used by \code{\link{basiscordata}}'s `"T5"`
+#' method, which integrates each basis function exactly over a rank's unit
+#' interval rather than evaluating it at a single pseudo-observation.
+#'
 #' @param x vector of values at which basis function should be evaluated.
 #' @param degree non-negative integer giving degree of function.
 #' @param type character string specifying type of basis function and taking values "legendre" or "cosine".
@@ -75,6 +90,8 @@ basisfunc <- function(x, degree, type = "legendre") {
 #' @returns vector of values of integrated basis function.
 #' @export
 #'
+#' @examples
+#' basisintegral(seq(0, 1, by = 0.25), 3)
 basisintegral <- function(x, degree, type = "legendre") {
   switch(type,
     legendre = ((basisfunc(x, degree + 1, "legendre") / sqrt(2 * degree + 3)) -
@@ -85,6 +102,9 @@ basisintegral <- function(x, degree, type = "legendre") {
 
 #' Derivative of Orthonormal Basis Function
 #'
+#' The derivative of \code{\link{basisfunc}}. Used by
+#' \code{\link{basiscorcopula}}'s `method = "p"` integrand.
+#'
 #' @param x vector of values at which basis function should be evaluated.
 #' @param degree non-negative integer giving degree of function.
 #' @param type character string specifying type of basis function and taking values "legendre" or "cosine".
@@ -92,6 +112,8 @@ basisintegral <- function(x, degree, type = "legendre") {
 #' @returns vector of values of derivative of basis function.
 #' @export
 #'
+#' @examples
+#' basisderiv(seq(0, 1, by = 0.25), 3)
 basisderiv <- function(x, degree, type = "legendre") {
   switch(type,
     legendre = sLegendre(x, degree, deriv = TRUE) * sqrt(2 * degree + 1),

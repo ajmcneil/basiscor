@@ -11,7 +11,10 @@ basiscormatrix(object, maxorder = 4, symmetric = FALSE, ...)
 
 \item{maxorder}{maximum order of the polynomials.}
 
-\item{symmetric}{logical variable stating whether matrix is known a priori to be symmetric.}
+\item{symmetric}{logical variable stating whether the matrix is known a
+priori to be symmetric (true, for instance, for an exchangeable copula
+with `j`, `k` given by the same margin ordering both times), halving
+the number of calls to \code{\link{basiscor}}.}
 
 \item{...}{other parameters passed to underlying functions.}
 }
@@ -19,7 +22,10 @@ basiscormatrix(object, maxorder = 4, symmetric = FALSE, ...)
 a square matrix with number of rows and columns equal to maxorder
 }
 \description{
-Compute Matrix of Basis Correlations
+Calls \code{\link{basiscor}} for every pair of degrees `1:maxorder`,
+returning the results as a matrix -- entry `[j, k]` is `basiscor(object,
+j, k, ...)`. This is what \code{\link{basisexpand}} uses to find its
+basis expansion.
 }
 \examples{
 basiscormatrix(copula::claytonCopula(2))

@@ -23,8 +23,25 @@ and, for \code{basiscordata}, \code{method}, or for
 value of polynomial rank correlation.
 }
 \description{
-Compute Basis Correlation
+The basis correlation between two degree-`j`, `k` orthonormal basis
+functions (shifted Legendre polynomials by default, or a cosine basis
+with `type = "cosine"`) of the two margins of a bivariate distribution.
+At `j = k = 1` this is exactly Spearman's rho: the orthonormal degree-1
+shifted Legendre polynomial is \eqn{P_1(u) = \sqrt{3}(2u - 1)}, so
+\code{basiscor(cop, 1, 1) = 3 E[(2U-1)(2V-1)] = 12 Cov(U, V)}, the usual
+definition. Higher-degree basis correlations pick up dependence that
+ordinary correlation and Spearman's rho miss, including non-monotonic
+dependence.
+}
+\details{
+`basiscor()` is a single dispatching entry point: it computes the
+population value from a parametric copula object or a bivariate copula
+function (via \code{\link{basiscorcopula}}), or the sample value from a
+bivariate data matrix (via \code{\link{basiscordata}}).
 }
 \examples{
 basiscor(copula::claytonCopula(2), 2, 2)
+basiscor(copula::claytonCopula(2), 1, 1) # Spearman's rho
+data <- copula::rCopula(1000, copula::claytonCopula(2))
+basiscor(data, 2, 2) # sample analogue, via basiscordata()
 }
