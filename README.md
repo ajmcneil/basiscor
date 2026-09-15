@@ -2,6 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/ajmcneil/basiscor/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ajmcneil/basiscor/actions/workflows/R-CMD-check.yaml)
+[![License: GPL-3](https://img.shields.io/badge/License-GPL--3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 <!-- badges: end -->
 
 `basiscor` computes **orthonormal basis correlations**: a family of
@@ -52,3 +53,7 @@ uniform-distribution-preserving transformations.
 - McNeil, A. J., Nešlehová, J. G. and Smith, A. D. (2025). Measures and models
   of non-monotonic dependence. arXiv:2512.10828.
   <https://arxiv.org/abs/2512.10828>
+
+## License
+
+GPL-3 © Alexander J. McNeil, Johanna Nešlehová, Andrew D. Smith
