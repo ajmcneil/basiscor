@@ -23,6 +23,7 @@ Encoding: UTF-8
 Imports: methods,
          stats,
          copula,
+         rvinecopulib,
          udp
 Remotes: ajmcneil/udp
 Collate:

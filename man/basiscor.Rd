@@ -7,7 +7,9 @@
 basiscor(object, j = 1L, k = 1L, ...)
 }
 \arguments{
-\item{object}{an object of class copula or Copula, or a data matrix, or a bivariate function describing a copula.}
+\item{object}{an object of class copula or Copula (from the \pkg{copula}
+package), a bicop_dist object (from \pkg{rvinecopulib}), a data matrix,
+or a bivariate function describing a copula.}
 
 \item{j}{non-negative integer giving order of first polynomial.}
 
@@ -44,4 +46,5 @@ basiscor(copula::claytonCopula(2), 2, 2)
 basiscor(copula::claytonCopula(2), 1, 1) # Spearman's rho
 data <- copula::rCopula(1000, copula::claytonCopula(2))
 basiscor(data, 2, 2) # sample analogue, via basiscordata()
+basiscor(rvinecopulib::bicop_dist("clayton", 0, 2), 2, 2)
 }

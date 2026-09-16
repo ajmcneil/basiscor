@@ -11,6 +11,7 @@ vignette: >
 
 ```{r setup, include = FALSE}
 library(copula)
+library(rvinecopulib)
 library(basiscor)
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -140,6 +141,35 @@ basiscor(cop)
 basiscor(cop, method = "d")
 basiscor(cop, 1, 2)
 basiscor(cop, 2, 2)
+```
+
+### Copulas from rvinecopulib
+
+`basiscor()` also accepts a `bicop_dist` bivariate copula object from the
+**rvinecopulib** package, dispatching to `basiscorcopula(cop, j, k, copobj =
+"bicop")`, which integrates against `rvinecopulib::pbicop()` (`method =
+"p"`) or `rvinecopulib::dbicop()` (`method = "d"`). The population values
+agree with the equivalent **copula** package object to numerical precision.
+
+```{r}
+cop <- claytonCopula(1.5)
+bc <- bicop_dist("clayton", 0, 1.5)
+basiscor(cop, 1, 1)
+basiscor(bc, 1, 1)
+basiscor(cop, 2, 3)
+basiscor(bc, 2, 3)
+```
+
+Unlike **copula**'s `tCopula`, `rvinecopulib`'s `bicop_dist` `t` copula has a
+distribution function that works for any degrees of freedom, not just
+integer ones, so `method = "p"` needs no automatic fallback to `method =
+"d"` the way `basiscorcopula()` does for `copobj = TRUE`. The two methods
+still agree closely, as they should:
+
+```{r}
+bc <- bicop_dist("t", 0, c(0.5, 4.3))
+basiscor(bc, 1, 1, method = "p")
+basiscor(bc, 1, 1, method = "d")
 ```
 
 ## Sample basis correlations

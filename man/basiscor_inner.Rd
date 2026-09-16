@@ -15,9 +15,9 @@ basiscor_inner(u, v, j, k, copobj, cop, method, type, ...)
 
 \item{k}{non-negative integer giving order of second polynomial.}
 
-\item{copobj}{logical parameter for copula object.}
+\item{copobj}{indicates the kind of copula object `cop` is: `TRUE`, `"bicop"` or `FALSE` (see \code{\link{basiscorcopula}}).}
 
-\item{cop}{an object of class parCopula or a function.}
+\item{cop}{an object of class parCopula, an object of class bicop_dist, or a function.}
 
 \item{method}{method of calculation which can be "p" or "d".}
 

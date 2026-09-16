@@ -108,7 +108,9 @@ basiscorcopula_gl_adaptive <- function(cop, j, k, copobj, method, type, ngrid0, 
 #' function (via \code{\link{basiscorcopula}}), or the sample value from a
 #' bivariate data matrix (via \code{\link{basiscordata}}).
 #'
-#' @param object an object of class copula or Copula, or a data matrix, or a bivariate function describing a copula.
+#' @param object an object of class copula or Copula (from the \pkg{copula}
+#'   package), a bicop_dist object (from \pkg{rvinecopulib}), a data matrix,
+#'   or a bivariate function describing a copula.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
 #' @param ... further arguments passed on to \code{\link{basiscordata}} (when
@@ -125,11 +127,14 @@ basiscorcopula_gl_adaptive <- function(cop, j, k, copobj, method, type, ngrid0, 
 #' basiscor(copula::claytonCopula(2), 1, 1) # Spearman's rho
 #' data <- copula::rCopula(1000, copula::claytonCopula(2))
 #' basiscor(data, 2, 2) # sample analogue, via basiscordata()
+#' basiscor(rvinecopulib::bicop_dist("clayton", 0, 2), 2, 2)
 basiscor <- function(object, j = 1L, k = 1L, ...){
   if (methods::is(object, "matrix"))
     basiscordata(object, j, k, ...)
   else if ((methods::is(object, "copula")) | (methods::is(object, "Copula")))
     basiscorcopula(object, j, k, copobj = TRUE, ...)
+  else if (methods::is(object, "bicop_dist"))
+    basiscorcopula(object, j, k, copobj = "bicop", ...)
   else if (methods::is(object, "function"))
     basiscorcopula(object, j, k, copobj = FALSE, ...)
   else
@@ -141,22 +146,30 @@ basiscor <- function(object, j = 1L, k = 1L, ...){
 #' The population basis correlation \code{\link{basiscor}} computes from a
 #' copula, evaluated by numerical integration of a double integral over the
 #' unit square rather than sampling. \code{cop} may be a `parCopula` object
-#' from the \pkg{copula} package (\code{copobj = TRUE}), or a bivariate
-#' function \code{cop(u, v, ...)} giving the copula's own distribution
-#' function directly (\code{copobj = FALSE}); the latter is only usable with
-#' \code{method = "p"}, since there is no density to fall back on.
+#' from the \pkg{copula} package (\code{copobj = TRUE}), a `bicop_dist`
+#' object from the \pkg{rvinecopulib} package (\code{copobj = "bicop"}), or a
+#' bivariate function \code{cop(u, v, ...)} giving the copula's own
+#' distribution function directly (\code{copobj = FALSE}); the function form
+#' is only usable with \code{method = "p"}, since there is no density to
+#' fall back on.
 #'
-#' @param cop an object of class parCopula or a function.
+#' @param cop an object of class parCopula, an object of class bicop_dist, or a function.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
-#' @param copobj logical parameter for copula object.
+#' @param copobj indicates the kind of copula object `cop` is: `TRUE` for a
+#'   `parCopula` object from the \pkg{copula} package, `"bicop"` for a
+#'   `bicop_dist` object from \pkg{rvinecopulib}, `FALSE` for a raw bivariate
+#'   function.
 #' @param method method of calculation: `"p"` integrates against the
-#'   copula's distribution function `pCopula()` (the default -- faster, and
-#'   the only option when a family has no closed-form density); `"d"`
-#'   integrates against the density `dCopula()` (needed when a family has
-#'   no closed-form distribution function, such as the `t` copula with
-#'   non-integer degrees of freedom, which is detected automatically and
-#'   switches `method` to `"d"` regardless of what was requested).
+#'   copula's distribution function (`copula::pCopula()` or
+#'   `rvinecopulib::pbicop()`; the default -- faster, and the only option
+#'   when a family has no closed-form density); `"d"` integrates against the
+#'   density (`copula::dCopula()` or `rvinecopulib::dbicop()`; needed when a
+#'   family has no closed-form distribution function, such as the `copula`
+#'   package's `t` copula with non-integer degrees of freedom, which is
+#'   detected automatically and switches `method` to `"d"` regardless of
+#'   what was requested -- `rvinecopulib`'s `bicop_dist` `t` copula has no
+#'   such restriction, so no such switch happens for `copobj = "bicop"`).
 #' @param type type of basis correlation can be legendre or cosine.
 #' @param ngrid number of Gauss-Legendre nodes per axis used to evaluate the
 #'   double integral for `method = "p"`. The default of 40 is accurate to
@@ -174,9 +187,11 @@ basiscor <- function(object, j = 1L, k = 1L, ...){
 #' @return value of polynomial rank correlation.
 #' @export
 #' @import copula
+#' @import rvinecopulib
 #'
 #' @examples
 #' basiscorcopula(copula::claytonCopula(2), 2, 2, copobj = TRUE)
+#' basiscorcopula(rvinecopulib::bicop_dist("clayton", 0, 2), 2, 2, copobj = "bicop")
 basiscorcopula <- function(cop, j = 1L, k = 1L, copobj, method = "p",
                           type = "legendre", ngrid = 40L,
                           ngrid0 = 20L, reltol = 1e-4, ngridmax = 320L, ...){
@@ -187,11 +202,14 @@ basiscorcopula <- function(cop, j = 1L, k = 1L, copobj, method = "p",
     return(dg$shortcut)
   j <- dg$j
   k <- dg$k
-  if (copobj){
+  if (isTRUE(copobj)){
     if (!methods::is(cop, "parCopula"))
       stop("Function requires a parametric copula object", call. = FALSE)
     if (methods::is(cop, "tCopula") && cop@parameters[cop@param.names == "df"] %% 1 != 0) # pCopula not implemented for non-integer df
       method <- "d"
+  } else if (identical(copobj, "bicop")){
+    if (!methods::is(cop, "bicop_dist"))
+      stop("Function requires a bicop_dist object from rvinecopulib", call. = FALSE)
   }
   result <- if (method == "p") {
     basiscorcopula_gl(cop, j, k, copobj, method, type, ngrid, ...)
@@ -215,18 +233,22 @@ basiscorcopula <- function(cop, j = 1L, k = 1L, copobj, method = "p",
 #' @param v vector argument of function.
 #' @param j non-negative integer giving order of first polynomial.
 #' @param k non-negative integer giving order of second polynomial.
-#' @param copobj logical parameter for copula object.
-#' @param cop an object of class parCopula or a function.
+#' @param copobj indicates the kind of copula object `cop` is: `TRUE`, `"bicop"` or `FALSE` (see \code{\link{basiscorcopula}}).
+#' @param cop an object of class parCopula, an object of class bicop_dist, or a function.
 #' @param method method of calculation which can be "p" or "d".
 #' @param type type of basis correlation can be legendre or cosine.
 #'
 #' @return value of inner integrand
 #' @keywords internal
 basiscor_inner <- function(u, v, j, k, copobj, cop, method, type, ...){
-  if ((copobj) & (method == "p"))
+  if (isTRUE(copobj) && method == "p")
     part1 <- pCopula(cbind(u, v), cop)
-  else if ((copobj) & (method == "d"))
+  else if (isTRUE(copobj) && method == "d")
     part1 <- dCopula(cbind(u, v), cop)
+  else if (identical(copobj, "bicop") && method == "p")
+    part1 <- pbicop(cbind(u, v), cop)
+  else if (identical(copobj, "bicop") && method == "d")
+    part1 <- dbicop(cbind(u, v), cop)
   else
     part1 <- cop(u, v, ...)
   output <- switch(method,

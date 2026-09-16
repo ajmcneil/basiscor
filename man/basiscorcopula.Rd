@@ -19,21 +19,27 @@ basiscorcopula(
 )
 }
 \arguments{
-\item{cop}{an object of class parCopula or a function.}
+\item{cop}{an object of class parCopula, an object of class bicop_dist, or a function.}
 
 \item{j}{non-negative integer giving order of first polynomial.}
 
 \item{k}{non-negative integer giving order of second polynomial.}
 
-\item{copobj}{logical parameter for copula object.}
+\item{copobj}{indicates the kind of copula object `cop` is: `TRUE` for a
+`parCopula` object from the \pkg{copula} package, `"bicop"` for a
+`bicop_dist` object from \pkg{rvinecopulib}, `FALSE` for a raw bivariate
+function.}
 
 \item{method}{method of calculation: `"p"` integrates against the
-copula's distribution function `pCopula()` (the default -- faster, and
-the only option when a family has no closed-form density); `"d"`
-integrates against the density `dCopula()` (needed when a family has
-no closed-form distribution function, such as the `t` copula with
-non-integer degrees of freedom, which is detected automatically and
-switches `method` to `"d"` regardless of what was requested).}
+copula's distribution function (`copula::pCopula()` or
+`rvinecopulib::pbicop()`; the default -- faster, and the only option
+when a family has no closed-form density); `"d"` integrates against the
+density (`copula::dCopula()` or `rvinecopulib::dbicop()`; needed when a
+family has no closed-form distribution function, such as the `copula`
+package's `t` copula with non-integer degrees of freedom, which is
+detected automatically and switches `method` to `"d"` regardless of
+what was requested -- `rvinecopulib`'s `bicop_dist` `t` copula has no
+such restriction, so no such switch happens for `copobj = "bicop"`).}
 
 \item{type}{type of basis correlation can be legendre or cosine.}
 
@@ -59,11 +65,14 @@ value of polynomial rank correlation.
 The population basis correlation \code{\link{basiscor}} computes from a
 copula, evaluated by numerical integration of a double integral over the
 unit square rather than sampling. \code{cop} may be a `parCopula` object
-from the \pkg{copula} package (\code{copobj = TRUE}), or a bivariate
-function \code{cop(u, v, ...)} giving the copula's own distribution
-function directly (\code{copobj = FALSE}); the latter is only usable with
-\code{method = "p"}, since there is no density to fall back on.
+from the \pkg{copula} package (\code{copobj = TRUE}), a `bicop_dist`
+object from the \pkg{rvinecopulib} package (\code{copobj = "bicop"}), or a
+bivariate function \code{cop(u, v, ...)} giving the copula's own
+distribution function directly (\code{copobj = FALSE}); the function form
+is only usable with \code{method = "p"}, since there is no density to
+fall back on.
 }
 \examples{
 basiscorcopula(copula::claytonCopula(2), 2, 2, copobj = TRUE)
+basiscorcopula(rvinecopulib::bicop_dist("clayton", 0, 2), 2, 2, copobj = "bicop")
 }

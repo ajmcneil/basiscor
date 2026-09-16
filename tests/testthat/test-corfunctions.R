@@ -101,6 +101,43 @@ test_that("basiscor() at high degree agrees between method p and d, cosine type 
   )
 })
 
+## basiscor() / basiscorcopula() with bicop_dist objects (rvinecopulib) ------
+
+test_that("basiscor() dispatches a bicop_dist object to basiscorcopula(copobj = \"bicop\")", {
+  bc <- rvinecopulib::bicop_dist("clayton", 0, 2)
+  expect_equal(basiscor(bc, 2, 2), basiscorcopula(bc, 2, 2, copobj = "bicop"))
+})
+
+test_that("basiscor() on a bicop_dist matches the equivalent copula package object", {
+  specs <- list(
+    list(cop = copula::claytonCopula(1.5), bc = rvinecopulib::bicop_dist("clayton", 0, 1.5)),
+    list(cop = copula::gumbelCopula(1.5), bc = rvinecopulib::bicop_dist("gumbel", 0, 1.5)),
+    list(cop = copula::normalCopula(0.6), bc = rvinecopulib::bicop_dist("gaussian", 0, 0.6))
+  )
+  for (s in specs) {
+    for (jk in list(c(1, 1), c(2, 3))) {
+      expect_equal(basiscor(s$cop, jk[1], jk[2]), basiscor(s$bc, jk[1], jk[2]), tolerance = 1e-6)
+    }
+  }
+})
+
+test_that("basiscor() on a bicop_dist: method p and d agree closely", {
+  bc <- rvinecopulib::bicop_dist("joe", 0, 2)
+  expect_equal(basiscor(bc, 2, 3, method = "p"), basiscor(bc, 2, 3, method = "d"), tolerance = 1e-3)
+})
+
+test_that("basiscor() handles non-integer df for a bicop_dist t copula directly, unlike copula::tCopula", {
+  bc <- rvinecopulib::bicop_dist("t", 0, c(0.5, 4.3))
+  expect_equal(basiscor(bc, 1, 1, method = "p"), basiscor(bc, 1, 1, method = "d"), tolerance = 1e-3)
+})
+
+test_that("basiscorcopula() rejects a bicop_dist passed with copobj = TRUE and vice versa", {
+  bc <- rvinecopulib::bicop_dist("clayton", 0, 2)
+  cop <- copula::claytonCopula(2)
+  expect_error(basiscorcopula(bc, 1, 1, copobj = TRUE), "parametric copula object")
+  expect_error(basiscorcopula(cop, 1, 1, copobj = "bicop"), "bicop_dist")
+})
+
 ## basiscordata() ------------------------------------------------------------
 
 test_that("basiscordata() at j = k = 1, method = T3 equals sample Spearman correlation", {
