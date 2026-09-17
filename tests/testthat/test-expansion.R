@@ -8,8 +8,8 @@ test_that("basisexpand() returns a bex object with the expected slots", {
   expect_identical(bex@type, "legendre")
   expect_length(bex@alphag, 5)
   expect_length(bex@alphah, 5)
-  expect_s4_class(bex@Tg, "udplegendre_sum")
-  expect_s4_class(bex@Th, "udplegendre_sum")
+  expect_s4_class(bex@Tg, "udplegendrebex")
+  expect_s4_class(bex@Th, "udplegendrebex")
   expect_true(bex@maxcor >= 0 && bex@maxcor <= 1 + 1e-8)
 })
 
@@ -18,8 +18,8 @@ test_that("basisexpand() respects type = \"cosine\"", {
   X <- copula::rCopula(300, copula::claytonCopula(2))
   bex <- basisexpand(X, maxorder = 4, type = "cosine")
   expect_identical(bex@type, "cosine")
-  expect_s4_class(bex@Tg, "udpcosine_sum")
-  expect_s4_class(bex@Th, "udpcosine_sum")
+  expect_s4_class(bex@Tg, "udpcosinebex")
+  expect_s4_class(bex@Th, "udpcosinebex")
 })
 
 test_that("basisexpand()'s maxcor is at least the plain Spearman correlation", {

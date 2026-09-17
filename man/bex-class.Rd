@@ -49,8 +49,8 @@ are needed.
 
 \item{\code{alphag,alphah}}{numeric; the weights of the two expansions.}
 
-\item{\code{Tg,Th}}{objects of class \code{udp} (see `udp::udplegendre_sum()` /
-`udp::udpcosine_sum()`) built from `alphag`, `alphah`.}
+\item{\code{Tg,Th}}{objects of class \code{udp} (see `udp::udplegendrebex()` /
+`udp::udpcosinebex()`) built from `alphag`, `alphah`.}
 }}
 
 \seealso{

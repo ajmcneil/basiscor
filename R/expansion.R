@@ -5,8 +5,8 @@
 # g(U), the exact pre-images and selection probabilities of T(u) = F(g(u)),
 # and drawing the resulting graph -- used to be basiscor's own
 # pcsm_analysis()/root_analysis()/bexfunc_uni() (a grid-search-then-uniroot()
-# approach). All of that is now udp::udplegendre_sum(alpha) /
-# udp::udpcosine_sum(alpha): an exact, panel-spline construction of the same
+# approach). All of that is now udp::udplegendrebex(alpha) /
+# udp::udpcosinebex(alpha): an exact, panel-spline construction of the same
 # transformation, with udptrans()/udpinverse()/udpsi()/pcoincide()/plot() as
 # the public interface. What remains genuinely basiscor's own is choosing
 # alpha (an SVD of the basis-correlation matrix) and a sign convention for
@@ -32,8 +32,8 @@
 #' @slot type character; `"legendre"` or `"cosine"`.
 #' @slot maxcor numeric; the maximal generalized Spearman correlation attained.
 #' @slot alphag,alphah numeric; the weights of the two expansions.
-#' @slot Tg,Th objects of class \code{udp} (see `udp::udplegendre_sum()` /
-#'   `udp::udpcosine_sum()`) built from `alphag`, `alphah`.
+#' @slot Tg,Th objects of class \code{udp} (see `udp::udplegendrebex()` /
+#'   `udp::udpcosinebex()`) built from `alphag`, `alphah`.
 #'
 #' @seealso [basisexpand()] to construct one.
 #' @importClassesFrom udp udp
@@ -77,12 +77,12 @@ basisexpand <- function(data, maxorder = 8, type = "legendre") {
   maxcor <- svdres$d[1]
   alphag <- as.vector(svdres$u)
   alphah <- as.vector(svdres$v)
-  sumfun <- switch(type,
-    legendre = udp::udplegendre_sum,
-    cosine = udp::udpcosine_sum,
+  bexfun <- switch(type,
+    legendre = udp::udplegendrebex,
+    cosine = udp::udpcosinebex,
     stop("Unknown type of basis function")
   )
-  Tg <- sumfun(alphag)
+  Tg <- bexfun(alphag)
   # SVD determines alphag, alphah only up to a joint sign flip; orient them
   # so that g is increasing at u = 1. T = F(g) inherits g's sign of change
   # there because F is strictly increasing on the range of g, so
@@ -90,11 +90,11 @@ basisexpand <- function(data, maxorder = 8, type = "legendre") {
   if (udp::udpderiv(Tg, 1) < 0) {
     alphag <- -alphag
     alphah <- -alphah
-    Tg <- sumfun(alphag)
+    Tg <- bexfun(alphag)
   }
   methods::new("bex",
     type = type, maxcor = maxcor, alphag = alphag, alphah = alphah,
-    Tg = Tg, Th = sumfun(alphah)
+    Tg = Tg, Th = bexfun(alphah)
   )
 }
 
