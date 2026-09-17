@@ -108,7 +108,10 @@ basisexpand <- function(data, maxorder = 8, type = "legendre") {
 #' @param x an object of class \linkS4class{bex}.
 #' @param n number of grid points for plotting.
 #' @param udp logical; plot the udp transformations `Tg`, `Th` rather than the raw expansions `g`, `h`.
-#' @param xlab,ylab axis labels.
+#' @param xlab x-axis label, shared by both panels.
+#' @param ylab y-axis label(s) for the `g`/`Tg` and `h`/`Th` panels
+#'   respectively; a single value is recycled for both. Defaults to
+#'   `c("g(u)", "h(u)")`, or `c("Tg(u)", "Th(u)")` when `udp = TRUE`.
 #' @param ... further graphical parameters passed to [graphics::plot()].
 #'
 #' @return No return value, generates a plot.
@@ -120,7 +123,11 @@ basisexpand <- function(data, maxorder = 8, type = "legendre") {
 #' plot(bex)
 #' plot(bex, udp = TRUE)
 setMethod("plot", c(x = "bex", y = "missing"), function(x, n = 500L, udp = FALSE,
-                                                         xlab = "u", ylab = if (udp) "T(u)" else "g(u)", ...) {
+                                                         xlab = "u", ylab = NULL, ...) {
+  if (is.null(ylab)) {
+    ylab <- if (udp) c("Tg(u)", "Th(u)") else c("g(u)", "h(u)")
+  }
+  ylab <- rep_len(ylab, 2)
   u <- seq(0, 1, length.out = n)
   if (udp) {
     gvals <- udp::udptrans(x@Tg, u)
@@ -134,11 +141,11 @@ setMethod("plot", c(x = "bex", y = "missing"), function(x, n = 500L, udp = FALSE
   op <- graphics::par(mfrow = c(1, 2))
   on.exit(graphics::par(op))
   if (udp) {
-    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Tg", ...)
-    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Th", ...)
+    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab[1], ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Tg", ...)
+    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab[2], ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Th", ...)
   } else {
-    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, xaxs = "i", yaxs = "i", main = "g", ...)
-    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab, ylim = ylim, xaxs = "i", yaxs = "i", main = "h", ...)
+    plot(u, gvals, type = "l", xlab = xlab, ylab = ylab[1], ylim = ylim, xaxs = "i", yaxs = "i", main = "g", ...)
+    plot(u, hvals, type = "l", xlab = xlab, ylab = ylab[2], ylim = ylim, xaxs = "i", yaxs = "i", main = "h", ...)
   }
 })
 

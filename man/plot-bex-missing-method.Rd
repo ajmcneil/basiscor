@@ -4,14 +4,7 @@
 \alias{plot,bex,missing-method}
 \title{Plot a Basis Expansion}
 \usage{
-\S4method{plot}{bex,missing}(
-  x,
-  n = 500L,
-  udp = FALSE,
-  xlab = "u",
-  ylab = if (udp) "T(u)" else "g(u)",
-  ...
-)
+\S4method{plot}{bex,missing}(x, n = 500L, udp = FALSE, xlab = "u", ylab = NULL, ...)
 }
 \arguments{
 \item{x}{an object of class \linkS4class{bex}.}
@@ -20,7 +13,11 @@
 
 \item{udp}{logical; plot the udp transformations `Tg`, `Th` rather than the raw expansions `g`, `h`.}
 
-\item{xlab, ylab}{axis labels.}
+\item{xlab}{x-axis label, shared by both panels.}
+
+\item{ylab}{y-axis label(s) for the `g`/`Tg` and `h`/`Th` panels
+respectively; a single value is recycled for both. Defaults to
+`c("g(u)", "h(u)")`, or `c("Tg(u)", "Th(u)")` when `udp = TRUE`.}
 
 \item{...}{further graphical parameters passed to [graphics::plot()].}
 }

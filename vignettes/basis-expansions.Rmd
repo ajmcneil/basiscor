@@ -37,23 +37,23 @@ directly: `aceshuffle()` looks for the best pair of piecewise-linear
 *shuffles*, `basisexpand()` for the best pair of smooth, low-dimensional
 *polynomial* (or cosine) transformations.
 
-## The same folded data as the udp vignette
+## The same unfolded data as the udp vignette
 
 Two degree-fixed **udp** transformations -- `udplegendre(5)` and
-`udpcosine(6)` -- are used to fold each margin of a strongly dependent Gumbel
-copula sample, via stochastic inversion (`udpsi()`). This destroys the
+`udpcosine(6)` -- are used to unfold each margin of a strongly dependent
+Gumbel copula sample, via stochastic inversion (`udpsi()`). This destroys the
 ordinary correlation almost entirely while leaving a highly structured,
 non-monotonic dependence behind.
 
 ```{r data}
-T5 <- udplegendre(5)
-T3 <- udpcosine(6)
+udp1 <- udplegendre(5)
+udp2 <- udpcosine(6)
 
 set.seed(1)
 n <- 1000
 GC <- copula::gumbelCopula(3)
 W <- copula::rCopula(n, GC)
-X <- cbind(udpsi(T5, W[, 1]), udpsi(T3, W[, 2]))
+X <- cbind(udpsi(udp1, W[, 1]), udpsi(udp2, W[, 2]))
 
 cor(W)[1, 2]
 cor(X)[1, 2]
@@ -94,19 +94,19 @@ plot(bex, udp = TRUE)
 ```
 
 Overlaying each fitted transformation against the *true* one used to build
-its margin of `X` checks the recovery directly: `Tg` against `T5` (margin 1),
-`Th` against `T3` (margin 2).
+its margin of `X` checks the recovery directly: `Tg` against `udp1` (margin
+1), `Th` against `udp2` (margin 2).
 
 ```{r plot-udp-overlay, fig.width = 7.8}
 u <- seq(0, 1, length.out = 400)
 op <- par(mfrow = c(1, 2))
 plot(u, udptrans(bex@Tg, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, xaxs = "i", yaxs = "i", main = "margin 1")
-lines(u, udptrans(T5, u), col = "red", lty = 2)
-legend("bottomright", legend = c("fitted Tg", "true T5"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
+lines(u, udptrans(udp1, u), col = "red", lty = 2)
+legend("bottomright", legend = c("fitted Tg", "true udp1"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
 
 plot(u, udptrans(bex@Th, u), type = "l", xlab = "u", ylab = "T(u)", asp = 1, xaxs = "i", yaxs = "i", main = "margin 2")
-lines(u, udptrans(T3, u), col = "red", lty = 2)
-legend("bottomright", legend = c("fitted Th", "true T3"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
+lines(u, udptrans(udp2, u), col = "red", lty = 2)
+legend("bottomright", legend = c("fitted Th", "true udp2"), col = c("black", "red"), lty = c(1, 2), cex = 0.8)
 par(op)
 ```
 
@@ -117,10 +117,10 @@ which is high for the matching pair and near zero for the mismatched one:
 
 ```{r plot-udp-check}
 data.frame(
-  cor_Tg_T5 = cor(udptrans(bex@Tg, u), udptrans(T5, u)),
-  cor_Tg_T3 = cor(udptrans(bex@Tg, u), udptrans(T3, u)),
-  cor_Th_T5 = cor(udptrans(bex@Th, u), udptrans(T5, u)),
-  cor_Th_T3 = cor(udptrans(bex@Th, u), udptrans(T3, u))
+  cor_Tg_udp1 = cor(udptrans(bex@Tg, u), udptrans(udp1, u)),
+  cor_Tg_udp2 = cor(udptrans(bex@Tg, u), udptrans(udp2, u)),
+  cor_Th_udp1 = cor(udptrans(bex@Th, u), udptrans(udp1, u)),
+  cor_Th_udp2 = cor(udptrans(bex@Th, u), udptrans(udp2, u))
 )
 ```
 
@@ -131,11 +131,12 @@ is unique only up to the joint reflection `(g, h) -> (-g, -h)`, equivalently
 used to generate the data. If an overlay comes out reflected, compare against
 `1 - udptrans(...)` instead.
 
-## Undoing the fold
+## Folding the data back
 
-`udptrans()` applied to a \linkS4class{bex} object transforms both columns of
-a bivariate `(0, 1)` matrix at once, `cbind(udptrans(Tg, X[, 1]), udptrans(Th,
-X[, 2]))`, recovering data that is once again close to linearly correlated:
+`udptrans()` applied to a \linkS4class{bex} object *folds* both columns of a
+bivariate `(0, 1)` matrix at once, `cbind(udptrans(Tg, X[, 1]), udptrans(Th,
+X[, 2]))`, undoing the unfolding above and recovering data that is once
+again close to linearly correlated:
 
 ```{r udptrans-bex}
 V <- udptrans(bex, X)
