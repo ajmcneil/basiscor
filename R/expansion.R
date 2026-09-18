@@ -137,8 +137,16 @@ setMethod("plot", c(x = "bex", y = "missing"), function(x, n = 500L, udp = FALSE
     gvals <- as.vector(B %*% x@alphag)
     hvals <- as.vector(B %*% x@alphah)
   }
-  ylim <- range(gvals, hvals)
-  op <- graphics::par(mfrow = c(1, 2))
+  # Tg, Th are udp transformations and so take values in exactly [0, 1];
+  # range(gvals, hvals) would instead reflect their panel-spline
+  # interpolation error (~1e-4), narrowing ylim fractionally inside [0, 1].
+  ylim <- if (udp) c(0, 1) else range(gvals, hvals)
+  # pty = "s" makes each side-by-side panel square in physical inches. Without
+  # it, asp = 1 (below) forces 1 data-unit to mean the same physical distance
+  # on both axes of an oblong panel, which it can only do by *stretching one
+  # axis's displayed range past what ylim/xlim asked for -- visibly past 0 or
+  # 1 for these udp transformations.
+  op <- graphics::par(mfrow = c(1, 2), pty = "s")
   on.exit(graphics::par(op))
   if (udp) {
     plot(u, gvals, type = "l", xlab = xlab, ylab = ylab[1], ylim = ylim, asp = 1, xaxs = "i", yaxs = "i", main = "Tg", ...)

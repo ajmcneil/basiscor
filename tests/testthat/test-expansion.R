@@ -103,3 +103,24 @@ test_that("plot(bex) runs for both the raw and udp = TRUE panels", {
   expect_no_error(plot(bex))
   expect_no_error(plot(bex, udp = TRUE))
 })
+
+test_that("plot(bex, udp = TRUE) keeps both axes within [0, 1]", {
+  # Tg, Th take values in exactly [0, 1]; a side-by-side (non-square) panel
+  # under asp = 1 can stretch one axis's displayed range past the requested
+  # ylim/xlim if the panel isn't forced square -- verify par("usr") (the
+  # actually rendered extent of the last panel drawn, Th) stays inside
+  # [0, 1] up to floating-point noise. Both panels share the same ylim/xlim
+  # and pty = "s" setting, so this covers Tg's panel equally.
+  set.seed(1)
+  X <- copula::rCopula(200, copula::claytonCopula(2))
+  bex <- basisexpand(X, maxorder = 4)
+  tf <- tempfile(fileext = ".png")
+  grDevices::png(tf)
+  on.exit({
+    grDevices::dev.off()
+    unlink(tf)
+  })
+  plot(bex, udp = TRUE)
+  usr <- graphics::par("usr")
+  expect_true(all(usr > -1e-6 & usr < 1 + 1e-6))
+})
