@@ -33,7 +33,7 @@ F(g(u))`, `Th(u) = F(h(u))` -- built from them.
 
 \item \code{udptrans(bex)}: Apply the pair of udp transformations `Tg`, `Th` of
 a bex object to the two columns of a bivariate matrix, `cbind(udptrans(x@Tg,
-u[, 1]), udptrans(x@Th, u[, 2]))`. Unlike a single \linkS4class{udp}
+u[, 1]), udptrans(x@Th, u[, 2]))`. Unlike a single \link[udp]{udp-class}
 transformation, which acts on a vector, `u` here must be a two-column
 matrix since the two columns get different transformations. Use
 `udp::boundaryadjust()` on the result if values strictly inside `(0, 1)`
